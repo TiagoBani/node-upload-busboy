@@ -1,100 +1,94 @@
-let bytesAmount = 0;
+let bytesAmount = 0
 
-const API_URL = "http://localhost:3000"
+const API_URL = 'http://localhost:3000'
 const ON_UPLOAD_EVENT = 'file-uploaded'
 
 const formatBytes = (bytes, decimals = 2) => {
-  if (bytes === 0) return "0 bytes";
+	if (bytes === 0) return '0 bytes'
 
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
+	const k = 1024
+	const dm = decimals < 0 ? 0 : decimals
+	const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB']
 
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
+	const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-};
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+}
 
 const updateStatus = (size = 0) => {
-  const text = `Pending bytes to upload: <strong>${formatBytes(size)}</strong>`;
-  document.getElementById("size").innerHTML = text;
-};
+	const text = `Pending bytes to upload: <strong>${formatBytes(size)}</strong>`
+	document.getElementById('size').innerHTML = text
+}
 
 const showSize = () => {
-  const { files: fileElements } = document.getElementById("file");
-  if (!fileElements.length) return;
+	const { files: fileElements } = document.getElementById('file')
+	if (!fileElements.length) return
 
-  const files = Array.from(fileElements);
-  const { size } = files.reduce(
-    (acc, curr) => ({ size: acc.size + curr.size }),
-    {
-      size: 0,
-    }
-  );
+	const files = Array.from(fileElements)
+	const { size } = files.reduce((acc, curr) => ({ size: acc.size + curr.size }),{size: 0})
 
-  bytesAmount = size;
+	bytesAmount = size
 
-  updateStatus(size);
+	updateStatus(size)
 
-  // const interval = setInterval(() => {
-  //   console.count();
+	// const interval = setInterval(() => {
+	//   console.count();
 
-  //   const result = bytesAmount - 5e6;
+	//   const result = bytesAmount - 5e6;
 
-  //   bytesAmount = result < 0 ? 0 : result;
+	//   bytesAmount = result < 0 ? 0 : result;
 
-  //   updateStatus(bytesAmount);
-  //   if (bytesAmount === 0) clearInterval(interval);
-  // }, 50);
-};
+	//   updateStatus(bytesAmount);
+	//   if (bytesAmount === 0) clearInterval(interval);
+	// }, 50);
+}
 
-const updateMessage = (message)=> {
-  const msg = document.getElementById('msg')
-  msg.innerText = message
+const updateMessage = (message) => {
+	const msg = document.getElementById('msg')
+	msg.innerText = message
 
-  msg.classList.add('alert', 'alert-success')
+	msg.classList.add('alert', 'alert-success')
 
-  setTimeout(()=> (msg.hidden = true), 3000)
+	setTimeout(() => (msg.hidden = true), 3000)
 }
 
 const showMessage = () => {
-  const urlParams = new URLSearchParams(window.location.search)
-  const serverMessage = urlParams.get('msg')
+	const urlParams = new URLSearchParams(window.location.search)
+	const serverMessage = urlParams.get('msg')
 
-  if(!serverMessage) return
+	if (!serverMessage) return
 
-  updateMessage(serverMessage)
+	updateMessage(serverMessage)
 }
 
 const configureForm = (targetUrl) => {
-  const form = document.getElementById('form')
+	const form = document.getElementById('form')
 
-  form.action = targetUrl
+	form.action = targetUrl
 }
 
 const onload = () => {
 
-  showMessage()
+	showMessage()
 
-  const ioClient = io.connect(API_URL, { withCredentials: false })
+	const ioClient = io.connect(API_URL, { withCredentials: false })
 
-  ioClient.on("connect", (msg) => {
-    console.log('connected', ioClient.id)
+	ioClient.on('connect', (msg) => {
+		console.log('connected', ioClient.id)
 
-    const targetUrl = API_URL + `?socketId=${ioClient.id}`
-    configureForm(targetUrl)
-  })
+		const targetUrl = API_URL + `?socketId=${ioClient.id}`
+		configureForm(targetUrl)
+	})
 
-  ioClient.on(ON_UPLOAD_EVENT, (bytesReceived) => {
-    console.log("received", bytesReceived)
-    bytesAmount = bytesAmount - bytesReceived
+	ioClient.on(ON_UPLOAD_EVENT, (bytesReceived) => {
+		console.log('received', bytesReceived)
+		bytesAmount = bytesAmount - bytesReceived
 
-    updateStatus(bytesAmount)
+		updateStatus(bytesAmount)
 
+	})
 
-  })
+}
 
-};
-
-window.onload = onload;
-window.showSize = showSize;
+window.onload = onload
+window.showSize = showSize
