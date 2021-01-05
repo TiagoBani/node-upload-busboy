@@ -16,6 +16,9 @@
     "nodemon": "^2.0.6"
   },
   "dependencies": {
+    "busboy": "0.3",
+    "pino": "6",
+    "pino-pretty": "4",
     "socket.io": "3.0"
   }
 }
