@@ -5,6 +5,16 @@ const { createWriteStream } = require('fs')
 
 const ON_UPLOAD_EVENT = 'file-uploaded'
 
+require('dotenv').config()
+const AWS = require('aws-sdk')
+const stream = require('stream');
+
+const { AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET } = process.env
+
+const s3 = new AWS.S3({
+  accessKeyId: AWS_ACCESS_KEY,
+  secretAccessKey: AWS_SECRET_ACCESS_KEY
+})
 class UploadHandler {
   #io
   #socketId
@@ -30,6 +40,13 @@ class UploadHandler {
 
         // logger.info(`File [${filename}] got ${size} bytes to ${this.#socketId}`)
         this.#io.to(this.#socketId).emit(ON_UPLOAD_EVENT, size)
+
+        logger.info(`AWS_ACCESS_KEY ${AWS_ACCESS_KEY}, AWS_SECRET_ACCESS_KEY ${AWS_SECRET_ACCESS_KEY}, AWS_S3_BUCKET ${AWS_S3_BUCKET}`)
+        await s3.upload({
+          Bucket: AWS_S3_BUCKET,
+          Key: filename,
+          Body: item
+        }).promise()
         yield item
       }
     }

@@ -16,7 +16,9 @@
     "nodemon": "^2.0.6"
   },
   "dependencies": {
+    "aws-sdk": "^2.821.0",
     "busboy": "0.3",
+    "dotenv": "^8.2.0",
     "pino": "6",
     "pino-pretty": "4",
     "socket.io": "3.0"
